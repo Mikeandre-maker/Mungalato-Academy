@@ -179,8 +179,8 @@ export default function Home() {
   const [round, setRound] = useState(1);
   const [played, setPlayed] = useState(false);
 
-  const judge = useMemo(
-    () => judges.find((item) => item.id === judgeId) ?? judges[0],
+  const judge = useMemo<Judge>(
+    () => judges.find((item) => item.id === judgeId) ?? (judges[0] as Judge),
     [judgeId],
   );
 
