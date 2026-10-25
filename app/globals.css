@@ -413,6 +413,9 @@ label {
 
 input:not([type]),
 input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
 textarea {
   width: 100%;
   padding: 12px 14px;
@@ -449,6 +452,10 @@ select option {
 }
 
 input:not([type]):focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
@@ -979,5 +986,301 @@ footer {
   .chat-panel {
     flex: 1;
     min-width: 0;
+  }
+}
+
+/* Onboarding: registration and pilot */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.onboarding-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(232, 180, 74, 0.1), transparent 45%),
+    var(--bg);
+}
+
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.onboarding-header .brand {
+  color: inherit;
+  text-decoration: none;
+}
+
+.onboarding-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.onboarding-nav a {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.onboarding-nav a:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.onboarding-main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 16px 48px;
+}
+
+.onboarding-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.onboarding-intro h1 {
+  font-size: 34px;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.onboarding-intro h1 em {
+  color: var(--accent);
+}
+
+.onboarding-intro > p {
+  color: var(--muted);
+  max-width: 46ch;
+}
+
+.onboarding-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onboarding-highlights li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.onboarding-highlights strong {
+  display: block;
+  font-size: 15px;
+}
+
+.onboarding-highlights p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.onboarding-card {
+  padding: 22px 18px;
+}
+
+.onboarding-form,
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.onboarding-form h2,
+.form-success h2 {
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.form-section {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.form-section + .form-section {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.form-section > legend {
+  padding: 0;
+  margin-bottom: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.field-legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--danger) !important;
+}
+
+.password-row {
+  display: flex;
+  gap: 8px;
+}
+
+.password-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.password-row .ghost-button {
+  flex-shrink: 0;
+  min-width: 72px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.choice-chip {
+  flex-direction: row;
+  justify-content: center;
+  padding: 11px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+}
+
+.choice-chip:hover {
+  color: var(--text);
+}
+
+.choice-chip:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.choice-chip.selected {
+  border-color: var(--accent);
+  background: rgba(232, 180, 74, 0.1);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.form-footnote {
+  text-align: center;
+  font-size: 13px;
+}
+
+.form-footnote a,
+.form-success a:not(.primary-button):not(.ghost-button) {
+  color: var(--accent);
+}
+
+.form-success {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.form-success .muted {
+  font-size: 14px;
+}
+
+.form-success .primary-button,
+.form-success .ghost-button {
+  text-decoration: none;
+}
+
+@media (min-width: 640px) {
+  .form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .onboarding-header {
+    padding: 18px 32px;
+  }
+
+  .onboarding-main {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 64px;
+    padding: 64px 32px;
+  }
+
+  .onboarding-intro {
+    flex: 1;
+    position: sticky;
+    top: 64px;
+  }
+
+  .onboarding-intro h1 {
+    font-size: 46px;
+  }
+
+  .onboarding-card {
+    width: 520px;
+    flex-shrink: 0;
+    padding: 28px;
   }
 }
