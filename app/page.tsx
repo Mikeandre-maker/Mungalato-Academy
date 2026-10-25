@@ -70,6 +70,27 @@ const judges: Judge[] = [
   },
 ];
 
+const OTHER_INDUSTRY = "Other";
+
+const industries = [
+  "Food distribution / agribusiness",
+  "Retail & e-commerce",
+  "Manufacturing",
+  "Construction & real estate",
+  "Transport & logistics",
+  "Technology & software",
+  "Financial services & fintech",
+  "Healthcare & pharmaceuticals",
+  "Education & training",
+  "Tourism & hospitality",
+  "Energy & renewables",
+  "Mining & natural resources",
+  "Creative industries & media",
+  "Beauty & personal care",
+  "Professional services",
+  OTHER_INDUSTRY,
+];
+
 const firstQuestion =
   "You want me to back this business, but I see an idea—not yet a proven company. What customer problem are you solving, who will pay you, and what evidence do you have that they will buy again?";
 
@@ -153,6 +174,8 @@ export default function Home() {
   const [solution, setSolution] = useState(
     "Aggregate produce from local farmers and deliver in scheduled orders.",
   );
+  const [industry, setIndustry] = useState(industries[0] as string);
+  const [customIndustry, setCustomIndustry] = useState("");
   const [cash, setCash] = useState(20000);
   const [revenue, setRevenue] = useState(0);
   const [expenses, setExpenses] = useState(0);
@@ -184,6 +207,9 @@ export default function Home() {
     [judgeId],
   );
 
+  const selectedIndustry =
+    industry === OTHER_INDUSTRY ? customIndustry.trim() || "Other (unspecified)" : industry;
+
   const profit = revenue - expenses;
   const runway = expenses > 0 ? Math.max(0, Math.floor(cash / expenses)) : 0;
   const margin = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
@@ -195,7 +221,7 @@ export default function Home() {
       problem,
       customer,
       solution,
-      industry: "Food distribution / agribusiness",
+      industry: selectedIndustry,
       stage: period > 3 ? "Early traction (simulated)" : "Idea / validation (simulated)",
       financials: {
         startingCapital: 20000,
@@ -212,7 +238,7 @@ export default function Home() {
         credit,
       },
     }),
-    [ventureName, problem, customer, solution, cash, revenue, expenses, profit, customers, period, price, stock, marketing, delivery, credit],
+    [ventureName, problem, customer, solution, selectedIndustry, cash, revenue, expenses, profit, customers, period, price, stock, marketing, delivery, credit],
   );
 
   function resetSimulation() {
@@ -491,6 +517,32 @@ export default function Home() {
                   maxLength={80}
                 />
               </label>
+
+              <label>
+                Business industry
+                <select
+                  value={industry}
+                  onChange={(event) => setIndustry(event.target.value)}
+                >
+                  {industries.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {industry === OTHER_INDUSTRY && (
+                <label>
+                  Describe your industry
+                  <input
+                    value={customIndustry}
+                    onChange={(event) => setCustomIndustry(event.target.value)}
+                    placeholder="e.g. Waste management & recycling"
+                    maxLength={80}
+                  />
+                </label>
+              )}
 
               <label>
                 Customer problem
