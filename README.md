@@ -1,2 +1,2 @@
 # Venture-Arena
-Venture Arena is an interactive entrepreneurship simulation game empowering African youth, aspiring entrepreneurs and startups to build business skills, test strategies, manage virtual investments and face tough AI judges. Prepare, pitch, learn and grow before entering real-world business and investor opportunities.
+Venture Arena is an entrepreneurship development ecosystem empowering African founders to build, test, and scale businesses through interactive simulations, AI-powered mentorship, practical training, and performance tracking. It connects entrepreneurs to incubators, industry partners, and investors, transforming business ideas into investment-ready ventures and sustainable enterprises.
