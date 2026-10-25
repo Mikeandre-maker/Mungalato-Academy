@@ -2,11 +2,20 @@
   "name": "venture-arena",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run lint && npm run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {
     "next": "^14.2.30",
@@ -18,6 +27,9 @@
     "@types/node": "^22.15.30",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.30",
+    "prettier": "^3.4.2",
     "typescript": "^5.8.3"
   }
 }
