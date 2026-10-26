@@ -145,10 +145,22 @@ export async function POST(req: NextRequest) {
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     });
   } catch (error) {
-    console.error("[judge] OpenAI request failed:", error);
-    return NextResponse.json(
-      { error: "The judge could not respond. Please try again." },
-      { status: 502 },
-    );
-  }
+    } catch (error) {
+  console.error("Judge API failure:", {
+    message:
+      error instanceof Error ? error.message : "Unknown error",
+    status:
+      typeof error === "object" && error !== null && "status" in error
+        ? error.status
+        : undefined,
+    code:
+      typeof error === "object" && error !== null && "code" in error
+        ? error.code
+        : undefined,
+  });
+
+  return Response.json(
+    { error: "The judge could not respond. Please try again." },
+    { status: 500 }
+  );
 }
