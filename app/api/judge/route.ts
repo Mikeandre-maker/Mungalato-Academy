@@ -145,14 +145,11 @@ export async function POST(req: NextRequest) {
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     });
   } catch (error) {
-  console.error("Judge API failure:", {
-    message:
-      error instanceof Error ? error.message : "Unknown error",
-    status:
-  });
-
-  return Response.json(
-    { error: "The judge could not respond. Please try again." },
-    { status: 500 }
-  );
-}
+    console.error("Judge API failure:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+    return NextResponse.json(
+      { error: "The judge could not respond. Please try again." },
+      { status: 500 }
+    );
+  }
