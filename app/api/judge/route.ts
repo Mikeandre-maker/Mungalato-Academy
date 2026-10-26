@@ -145,18 +145,10 @@ export async function POST(req: NextRequest) {
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     });
   } catch (error) {
-    } catch (error) {
   console.error("Judge API failure:", {
     message:
       error instanceof Error ? error.message : "Unknown error",
     status:
-      typeof error === "object" && error !== null && "status" in error
-        ? error.status
-        : undefined,
-    code:
-      typeof error === "object" && error !== null && "code" in error
-        ? error.code
-        : undefined,
   });
 
   return Response.json(
