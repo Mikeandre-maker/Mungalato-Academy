@@ -158,13 +158,41 @@ export async function POST(req: NextRequest) {
       score,
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     });
+  
   } catch (error) {
+    const err = error as {
+      message?: string;
+      status?: number;
+      code?: string;
+      type?: string;
+    };
+
     console.error("Judge API failure:", {
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: err.message || "Unknown error",
+      status: err.status,
+      code: err.code,
+      type: err.type,
     });
+
+    let message =
+      "The AI judge service failed. Check the Vercel function logs.";
+
+    if (err.status === 401) {
+      message =
+        "OpenAI rejected the API credentials. Check OPENAI_API_KEY in Vercel.";
+    } else if (err.status === 429) {
+      message =
+        "OpenAI rate limit or usage quota reached. Check API usage and billing.";
+    } else if (err.code === "model_not_found") {
+      message =
+        "The configured OpenAI model is unavailable. Check OPENAI_MODEL.";
+    } else if (err.status === 400) {
+      message =
+        "OpenAI rejected the request. Check the request format and model settings.";
+    }
+
     return NextResponse.json(
-      { error: "The judge could not respond. Please try again." },
-      { status: 500 }
+      { error: message },
+      { status: 502 }
     );
   }
-}
