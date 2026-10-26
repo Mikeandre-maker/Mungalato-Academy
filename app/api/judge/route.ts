@@ -3,11 +3,19 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
-type ChatMessage = { role: "judge" | "founder"; text: string };
+type ChatMessage = {
+  role: "judge" | "founder";
+  text: string;
+};
 
 type JudgeRequest = {
   mode?: "chat" | "evaluate";
-  judge: { name: string; role: string; focus: string; tone: string };
+  judge: {
+    name: string;
+    role: string;
+    focus: string;
+    tone: string;
+  };
   startup: unknown;
   pitch: string;
   history: ChatMessage[];
@@ -47,10 +55,13 @@ function parseBody(body: unknown): JudgeRequest | null {
             !!item &&
             typeof item === "object" &&
             ((item as ChatMessage).role === "judge" || (item as ChatMessage).role === "founder") &&
-            typeof (item as ChatMessage).text === "string",
+            typeof (item as ChatMessage).text === "string"
         )
         .slice(-8)
-        .map((item) => ({ role: item.role, text: item.text.slice(0, 2000) }))
+        .map((item) => ({
+          role: item.role,
+          text: item.text.slice(0, 2000),
+        }))
     : [];
 
   return {
@@ -73,7 +84,7 @@ export async function POST(req: NextRequest) {
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
       { error: "The judges are offline: OPENAI_API_KEY is not configured." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -81,7 +92,7 @@ export async function POST(req: NextRequest) {
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "You've reached the hourly limit for judge sessions. Please try again later." },
-      { status: 429 },
+      { status: 429 }
     );
   }
 
@@ -91,6 +102,7 @@ export async function POST(req: NextRequest) {
   } catch {
     input = null;
   }
+
   if (!input) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -100,11 +112,11 @@ export async function POST(req: NextRequest) {
   const system = [
     `You are ${judge.name}, ${judge.role}, a judge in "Venture Arena", an educational entrepreneurship simulation for African founders.`,
     `Your focus: ${judge.focus}. Your tone: ${judge.tone}`,
-    "All money is virtual (ZMW). Never promise real investment. Be rigorous but constructive, and keep replies concise (under 150 words).",
-    "Respond ONLY with JSON: {\"reply\": string, \"score\": number (0-100 founder readiness), \"feedback\": string}.",
+    'All money is virtual (ZMW). Never promise real investment. Be rigorous but constructive, and keep replies concise (under 150 words).',
+    'Respond ONLY with JSON: {"reply": string, "score": number (0-100 founder readiness), "feedback": string}.',
     mode === "evaluate"
-      ? "This is an evaluation: \"feedback\" must be a structured scorecard with strengths, weaknesses and 3 concrete next steps. \"reply\" is a one-line verdict."
-      : "In \"reply\", react to the founder's answer and ask exactly one sharp follow-up question. Keep \"feedback\" to 2-3 sentences of coaching.",
+      ? 'This is an evaluation: "feedback" must be a structured scorecard with strengths, weaknesses and 3 concrete next steps. "reply" is a one-line verdict.'
+      : 'In "reply", react to the founder\'s answer and ask exactly one sharp follow-up question. Keep "feedback" to 2-3 sentences of coaching.',
   ].join("\n");
 
   const context = `Round ${round}.\nStartup profile: ${JSON.stringify(startup).slice(0, 4000)}\nPitch: ${pitch}`;
@@ -116,7 +128,7 @@ export async function POST(req: NextRequest) {
       (message): OpenAI.Chat.ChatCompletionMessageParam => ({
         role: message.role === "judge" ? "assistant" : "user",
         content: message.text,
-      }),
+      })
     ),
   ];
 
@@ -137,7 +149,9 @@ export async function POST(req: NextRequest) {
     const parsed = JSON.parse(raw) as { reply?: unknown; score?: unknown; feedback?: unknown };
 
     const score =
-      typeof parsed.score === "number" ? Math.max(0, Math.min(100, Math.round(parsed.score))) : null;
+      typeof parsed.score === "number"
+        ? Math.max(0, Math.min(100, Math.round(parsed.score)))
+        : null;
 
     return NextResponse.json({
       reply: typeof parsed.reply === "string" ? parsed.reply : "Let's continue. Tell me more.",
@@ -153,3 +167,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
