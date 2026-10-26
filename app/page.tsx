@@ -5,15 +5,6 @@ import { useMemo, useState } from "react";
 type Tab = "overview" | "business" | "den" | "scorecard";
 type JudgeDifficulty = "easy" | "medium" | "hard";
 
-type Judge = {
-  id: string;
-  name: string;
-  role: string;
-  focus: string;
-  initials: string;
-  tone: string;
-  difficulty: JudgeDifficulty;
-};
 
 type Message = { role: "judge" | "founder"; text: string };
 
