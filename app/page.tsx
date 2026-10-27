@@ -124,7 +124,7 @@ const founderMessages: Message[] = [
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
-  const [selectedJudgeId, setSelectedJudgeId] = useState<string>(judges[0].id);
+  const [selectedJudgeId, setSelectedJudgeId] = useState<string>(judges?.[0]?.id ?? "");
 
   const activeJudge = useMemo(
     () => judges.find((judge) => judge.id === selectedJudgeId) ?? judges[0],
