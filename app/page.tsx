@@ -110,6 +110,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: "chat",
           judge: { name: judge.name, role: judge.role, focus: judge.focus, tone: judge.tone },
           startup: profile,
           pitch: pitch || `${ventureName}: ${solution} For ${customer}. Problem: ${problem}`,
@@ -175,7 +176,7 @@ export default function Home() {
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="eyebrow">FOUNDER JOURNEY / LEVEL 01</span><h1>{tab === "overview" ? "Command Centre" : tab === "business" ? "Business Lab" : tab === "den" ? "The Investment Den" : "Judge's Scorecard"}</h1></div><div className="topbar-actions"><Link href="/register" className="ghost-button">Create account ↗</Link><button className="ghost-button" onClick={resetSimulation}>↻ Reset simulation</button></div></header>
+        <header className="topbar"><div><span className="eyebrow">FOUNDER JOURNEY / LEVEL 01</span><h1>{tab === "overview" ? "Command Centre" : tab === "business" ? "Business Lab" : tab === "den" ? "The Investment Den" : "Judge's Scorecard"}</h1></div><div className="topbar-actions"><Link href="/login" className="ghost-button">Log in ↗</Link><Link href="/register" className="ghost-button">Sign up ↗</Link><Link href="/profile" className="ghost-button">My profile</Link><button className="ghost-button" onClick={resetSimulation}>↻ Reset simulation</button></div></header>
 
         {tab === "overview" && <>
           <section className="hero-card">
