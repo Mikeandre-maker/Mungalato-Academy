@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Judge = { id: string; name: string; role: string; focus: string; initials: string; tone: string };
 type Message = { role: "judge" | "founder"; text: string };
@@ -43,6 +43,84 @@ export default function Home() {
   const [readiness, setReadiness] = useState<number | null>(null);
   const [round, setRound] = useState(1);
   const [played, setPlayed] = useState(false);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"loading" | "saved" | "saving" | "error">("loading");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/workspace", { credentials: "include", cache: "no-store" })
+      .then(async response => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Could not load saved progress.");
+        return data;
+      })
+      .then(data => {
+        if (!active) return;
+        const state = data.state;
+        if (state && typeof state === "object" && !Array.isArray(state)) {
+          const saved = state as Record<string, unknown>;
+          if (typeof saved.ventureName === "string") setVentureName(saved.ventureName);
+          if (typeof saved.problem === "string") setProblem(saved.problem);
+          if (typeof saved.customer === "string") setCustomer(saved.customer);
+          if (typeof saved.solution === "string") setSolution(saved.solution);
+          for (const [key, setter] of [
+            ["cash", setCash], ["revenue", setRevenue], ["expenses", setExpenses],
+            ["customers", setCustomers], ["period", setPeriod], ["price", setPrice],
+            ["stock", setStock], ["marketing", setMarketing], ["delivery", setDelivery],
+            ["round", setRound], ["readiness", setReadiness]
+          ] as const) {
+            const value = saved[key];
+            if (typeof value === "number" && Number.isFinite(value)) setter(value as never);
+          }
+          if (typeof saved.event === "string") setEvent(saved.event);
+          if (typeof saved.credit === "boolean") setCredit(saved.credit);
+          if (typeof saved.judgeId === "string" && judges.some(item => item.id === saved.judgeId)) setJudgeId(saved.judgeId);
+          if (typeof saved.pitch === "string") setPitch(saved.pitch);
+          if (Array.isArray(saved.messages)) {
+            const validMessages = saved.messages.filter((item): item is Message =>
+              !!item && typeof item === "object" &&
+              (((item as Message).role === "judge") || ((item as Message).role === "founder")) &&
+              typeof (item as Message).text === "string"
+            ).slice(-40);
+            if (validMessages.length) setMessages(validMessages);
+          }
+          if (typeof saved.feedback === "string") setFeedback(saved.feedback);
+          if (typeof saved.played === "boolean") setPlayed(saved.played);
+        }
+        setWorkspaceReady(true);
+        setSaveStatus("saved");
+      })
+      .catch(error => {
+        console.error("Workspace could not be loaded", error);
+        if (active) setSaveStatus("error");
+      });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!workspaceReady) return;
+    setSaveStatus("saving");
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/workspace", {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state: {
+            ventureName, problem, customer, solution, cash, revenue, expenses,
+            customers, period, event, price, stock, marketing, delivery, credit,
+            judgeId, pitch, messages, feedback, readiness, round, played
+          } })
+        });
+        if (!response.ok) throw new Error("Workspace save failed");
+        setSaveStatus("saved");
+      } catch (error) {
+        console.error("Workspace could not be saved", error);
+        setSaveStatus("error");
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [workspaceReady, ventureName, problem, customer, solution, cash, revenue, expenses, customers, period, event, price, stock, marketing, delivery, credit, judgeId, pitch, messages, feedback, readiness, round, played]);
 
   const judge = judges.find(j => j.id === judgeId) ?? judges[0] ?? {
     id: "shark",
@@ -176,7 +254,7 @@ export default function Home() {
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="eyebrow">FOUNDER JOURNEY / LEVEL 01</span><h1>{tab === "overview" ? "Command Centre" : tab === "business" ? "Business Lab" : tab === "den" ? "The Investment Den" : "Judge's Scorecard"}</h1></div><div className="topbar-actions"><Link href="/login" className="ghost-button">Log in ↗</Link><Link href="/register" className="ghost-button">Sign up ↗</Link><Link href="/profile" className="ghost-button">My profile</Link><button className="ghost-button" onClick={resetSimulation}>↻ Reset simulation</button></div></header>
+        <header className="topbar"><div><span className="eyebrow">FOUNDER JOURNEY / LEVEL 01</span><h1>{tab === "overview" ? "Command Centre" : tab === "business" ? "Business Lab" : tab === "den" ? "The Investment Den" : "Judge's Scorecard"}</h1></div><div className="topbar-actions"><span className="muted" role="status">{saveStatus === "loading" ? "Loading saved progress…" : saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Progress saved" : "Progress not saved"}</span><Link href="/profile" className="ghost-button">My profile</Link><button className="ghost-button" onClick={async () => { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }); window.location.href = "/welcome"; }}>Log out ↗</button><button className="ghost-button" onClick={resetSimulation}>↻ Reset simulation</button></div></header>
 
         {tab === "overview" && <>
           <section className="hero-card">
