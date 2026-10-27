@@ -52,3 +52,13 @@ npm run build
 ```
 
 If you change environment variables in Vercel, redeploy so the new values are available to the functions.
+
+## Venture profile and video pitch practice
+
+The home page now includes an additive venture profile form and video-pitch practice panel while keeping the existing Venture Arena dashboard, judge panel, Q&A, and scorecard in place.
+
+- The venture profile is saved in the current browser's local storage and included in chat and pitch-review context. It is not yet synced to a user's Supabase account; account-linked persistence requires an authenticated Supabase session and should be enabled before treating this as cross-device storage.
+- Video pitch practice accepts MP4/WebM/QuickTime files up to 100 MB. The video remains in the browser; the client samples up to three resized still frames and sends those frames plus the transcript to `/api/judge` for multimodal review. The model cannot hear the video's audio or reliably judge full-motion delivery, so the transcript is required.
+- Judge difficulty is passed to the server and changes the AI's coaching style (easy, medium, hard).
+
+Required server environment variables are documented in `.env.example`. Keep `OPENAI_API_KEY` server-side only.
