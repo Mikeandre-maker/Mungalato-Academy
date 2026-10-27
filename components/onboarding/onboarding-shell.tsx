@@ -29,7 +29,8 @@ export function OnboardingShell({
           </div>
         </Link>
         <nav aria-label="Onboarding" className="onboarding-nav">
-          <Link href="/register">Create account</Link>
+          <Link href="/login">Log in</Link>
+          <Link href="/register">Sign up</Link>
           <Link href="/pilot">Run a pilot</Link>
         </nav>
       </header>
