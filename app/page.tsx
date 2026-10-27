@@ -63,15 +63,17 @@ export default function Home() {
           if (typeof saved.problem === "string") setProblem(saved.problem);
           if (typeof saved.customer === "string") setCustomer(saved.customer);
           if (typeof saved.solution === "string") setSolution(saved.solution);
-          for (const [key, setter] of [
-            ["cash", setCash], ["revenue", setRevenue], ["expenses", setExpenses],
-            ["customers", setCustomers], ["period", setPeriod], ["price", setPrice],
-            ["stock", setStock], ["marketing", setMarketing], ["delivery", setDelivery],
-            ["round", setRound], ["readiness", setReadiness]
-          ] as const) {
-            const value = saved[key];
-            if (typeof value === "number" && Number.isFinite(value)) setter(value as never);
-          }
+          if (typeof saved.cash === "number") setCash(saved.cash);
+          if (typeof saved.revenue === "number") setRevenue(saved.revenue);
+          if (typeof saved.expenses === "number") setExpenses(saved.expenses);
+          if (typeof saved.customers === "number") setCustomers(saved.customers);
+          if (typeof saved.period === "number") setPeriod(saved.period);
+          if (typeof saved.price === "number") setPrice(saved.price);
+          if (typeof saved.stock === "number") setStock(saved.stock);
+          if (typeof saved.marketing === "number") setMarketing(saved.marketing);
+          if (typeof saved.delivery === "number") setDelivery(saved.delivery);
+          if (typeof saved.round === "number") setRound(saved.round);
+          if (typeof saved.readiness === "number") setReadiness(saved.readiness);
           if (typeof saved.event === "string") setEvent(saved.event);
           if (typeof saved.credit === "boolean") setCredit(saved.credit);
           if (typeof saved.judgeId === "string" && judges.some(item => item.id === saved.judgeId)) setJudgeId(saved.judgeId);
