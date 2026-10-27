@@ -127,7 +127,17 @@ export default function HomePage() {
   const [selectedJudgeId, setSelectedJudgeId] = useState<string>(judges?.[0]?.id ?? "");
 
   const activeJudge = useMemo(
-    () => judges.find((judge) => judge.id === selectedJudgeId) ?? judges[0],
+    () =>
+      judges.find((judge) => judge.id === selectedJudgeId) ??
+      judges[0] ?? {
+        id: "shark",
+        name: "The Shark",
+        role: "Lead Investor",
+        focus: "investment discipline, differentiation and capital allocation",
+        initials: "SH",
+        tone: "Direct, skeptical and commercially focused.",
+        difficulty: "hard" as const,
+      },
     [selectedJudgeId],
   );
 
