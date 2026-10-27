@@ -11,7 +11,7 @@ function isPublicApi(pathname: string) {
   return PUBLIC_API_PREFIXES.some((path) => pathname === path || pathname.startsWith(path + "/"));
 }
 
-async function validSession(request: NextRequest, token: string) {
+async function validSession(token: string) {
   const url = process.env.SUPABASE_URL?.replace(/\/+$/, "");
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return false;
@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/welcome", request.url));
   }
 
-  const valid = await validSession(request, token);
+  const valid = await validSession(token);
   if (!valid) {
     if (pathname.startsWith("/api/")) return NextResponse.json({ error: "Your session has expired. Please sign in again." }, { status: 401 });
     if (publicPage && pathname !== "/welcome" && pathname !== "/login" && pathname !== "/register") return clearSession(NextResponse.next());
