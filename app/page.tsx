@@ -207,7 +207,7 @@ export default function Home() {
             <label className="check-row"><input type="checkbox" checked={credit} onChange={e => setCredit(e.target.checked)}/><span><strong>Offer customer credit</strong><small>Potentially attract customers, but delay 25% of sales cash in this simplified scenario.</small></span></label>
             <div className="decision-preview"><div><span>Stock cost</span><strong>{money(stock * 65)}</strong></div><div><span>Planned operating spend</span><strong>{money(stock * 65 + marketing + delivery + 250)}</strong></div><div><span>Cash before sales</span><strong className={cash - stock * 65 - marketing - delivery - 250 < 0 ? "negative" : ""}>{money(cash - stock * 65 - marketing - delivery - 250)}</strong></div></div>
             <button className="primary-button" onClick={runPeriod} disabled={period > 6 || cash < 0}>Commit decisions & run period <span>→</span></button>
-            {period > 6 && <p className="notice">You've completed the six-period demo. Reset the simulation to play again.</p>}
+            {period > 6 && <p className="notice">You&apos;ve completed the six-period demo. Reset the simulation to play again.</p>}
           </div>
           <div className="panel outcome-panel"><div className="panel-title"><h3>Market intelligence</h3><span className="subtle-tag">LATEST OUTCOME</span></div><p>{event}</p><div className="progress-track"><div style={{width: `${progress}%`}}/></div><small>Simulation progress · {Math.min(period - 1, 6)} of 6 periods complete</small></div>
         </>}
