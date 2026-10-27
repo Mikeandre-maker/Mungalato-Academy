@@ -131,7 +131,18 @@ export default function HomePage() {
     [selectedJudgeId],
   );
 
-  const latestPeriod = periodOutcomes[periodOutcomes.length - 1];
+  const latestPeriod: PeriodOutcome =
+    periodOutcomes[periodOutcomes.length - 1] ?? {
+      stockCost: 0,
+      demand: 0,
+      unitsSold: 0,
+      sales: 0,
+      operatingCosts: 0,
+      nextProfit: 0,
+      creditDelay: 0,
+      nextCash: 0,
+      customerIncrement: 0,
+    };
   const revenueGoal = 10000;
   const readinessScore = 82;
 
