@@ -68,8 +68,8 @@ export function RegisterForm() {
           We&apos;ve sent a confirmation link to <strong>{email.trim()}</strong>. Verify your email,
           then start building your first venture.
         </p>
-        <Link href="/" className="primary-button">
-          Enter the simulation <span aria-hidden="true">→</span>
+        <Link href="/login" className="primary-button">
+          Log in to continue <span aria-hidden="true">→</span>
         </Link>
       </div>
     );
@@ -233,6 +233,9 @@ export function RegisterForm() {
         {isSubmitting ? "Creating account…" : "Create account"}
       </button>
 
+      <p className="muted form-footnote">
+        Already have an account? <Link href="/login">Log in</Link>
+      </p>
       <p className="muted form-footnote">
         Bringing a whole cohort? <Link href="/pilot">Apply for an institutional pilot</Link>
       </p>
