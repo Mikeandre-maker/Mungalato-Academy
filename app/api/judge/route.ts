@@ -3,19 +3,10 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
-type ChatMessage = {
-  role: "judge" | "founder";
-  text: string;
-};
-
+type ChatMessage = { role: "judge" | "founder"; text: string };
 type JudgeRequest = {
   mode?: "chat" | "evaluate";
-  judge: {
-    name: string;
-    role: string;
-    focus: string;
-    tone: string;
-  };
+  judge: { name: string; role: string; focus: string; tone: string };
   startup: unknown;
   pitch: string;
   history: ChatMessage[];
@@ -58,10 +49,7 @@ function parseBody(body: unknown): JudgeRequest | null {
             typeof (item as ChatMessage).text === "string"
         )
         .slice(-8)
-        .map((item) => ({
-          role: item.role,
-          text: item.text.slice(0, 2000),
-        }))
+        .map((item) => ({ role: item.role, text: item.text.slice(0, 2000) }))
     : [];
 
   return {
@@ -102,17 +90,13 @@ export async function POST(req: NextRequest) {
   } catch {
     input = null;
   }
-
-  if (!input) {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
-  }
+  if (!input) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
 
   const { judge, startup, pitch, history, answer, round, mode } = input;
-
   const system = [
     `You are ${judge.name}, ${judge.role}, a judge in "Venture Arena", an educational entrepreneurship simulation for African founders.`,
     `Your focus: ${judge.focus}. Your tone: ${judge.tone}`,
-    'All money is virtual (ZMW). Never promise real investment. Be rigorous but constructive, and keep replies concise (under 150 words).',
+    "All money is virtual (ZMW). Never promise real investment. Be rigorous but constructive, and keep replies concise (under 150 words).",
     'Respond ONLY with JSON: {"reply": string, "score": number (0-100 founder readiness), "feedback": string}.',
     mode === "evaluate"
       ? 'This is an evaluation: "feedback" must be a structured scorecard with strengths, weaknesses and 3 concrete next steps. "reply" is a one-line verdict.'
@@ -120,21 +104,15 @@ export async function POST(req: NextRequest) {
   ].join("\n");
 
   const context = `Round ${round}.\nStartup profile: ${JSON.stringify(startup).slice(0, 4000)}\nPitch: ${pitch}`;
-
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
     { role: "system", content: system },
     { role: "user", content: context },
-    ...history.map(
-      (message): OpenAI.Chat.ChatCompletionMessageParam => ({
-        role: message.role === "judge" ? "assistant" : "user",
-        content: message.text,
-      })
-    ),
+    ...history.map((message): OpenAI.Chat.ChatCompletionMessageParam => ({
+      role: message.role === "judge" ? "assistant" : "user",
+      content: message.text,
+    })),
   ];
-
-  if (mode === "evaluate") {
-    messages.push({ role: "user", content: answer });
-  }
+  if (mode === "evaluate") messages.push({ role: "user", content: answer });
 
   try {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -144,55 +122,30 @@ export async function POST(req: NextRequest) {
       response_format: { type: "json_object" },
       temperature: 0.7,
     });
-
     const raw = completion.choices[0]?.message?.content ?? "{}";
     const parsed = JSON.parse(raw) as { reply?: unknown; score?: unknown; feedback?: unknown };
-
-    const score =
-      typeof parsed.score === "number"
-        ? Math.max(0, Math.min(100, Math.round(parsed.score)))
-        : null;
+    const score = typeof parsed.score === "number"
+      ? Math.max(0, Math.min(100, Math.round(parsed.score)))
+      : null;
 
     return NextResponse.json({
       reply: typeof parsed.reply === "string" ? parsed.reply : "Let's continue. Tell me more.",
       score,
       feedback: typeof parsed.feedback === "string" ? parsed.feedback : "",
     });
-  
   } catch (error) {
-    const err = error as {
-      message?: string;
-      status?: number;
-      code?: string;
-      type?: string;
-    };
-
+    const err = error as { message?: string; status?: number; code?: string; type?: string };
     console.error("Judge API failure:", {
       message: err.message || "Unknown error",
       status: err.status,
       code: err.code,
       type: err.type,
     });
-
-    let message =
-      "The AI judge service failed. Check the Vercel function logs.";
-
-    if (err.status === 401) {
-      message =
-        "OpenAI rejected the API credentials. Check OPENAI_API_KEY in Vercel.";
-    } else if (err.status === 429) {
-      message =
-        "OpenAI rate limit or usage quota reached. Check API usage and billing.";
-    } else if (err.code === "model_not_found") {
-      message =
-        "The configured OpenAI model is unavailable. Check OPENAI_MODEL.";
-    } else if (err.status === 400) {
-      message =
-        "OpenAI rejected the request. Check the request format and model settings.";
-    }
-
-    return NextResponse.json(
-      { error: message },
-      { status: 502 }
-    );
+    let message = "The AI judge service failed. Check the Vercel function logs.";
+    if (err.status === 401) message = "OpenAI rejected the API credentials. Check OPENAI_API_KEY in Vercel.";
+    else if (err.status === 429) message = "OpenAI rate limit or usage quota reached. Check API usage and billing.";
+    else if (err.code === "model_not_found") message = "The configured OpenAI model is unavailable. Check OPENAI_MODEL.";
+    else if (err.status === 400) message = "OpenAI rejected the request. Check the request format and model settings.";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
+}
