@@ -88,9 +88,14 @@ export function RegisterForm() {
       </div>
 
       {formError ? (
-        <p className="error-message" role="alert">
-          {formError}
-        </p>
+        <div className="error-message" role="alert">
+          <p>{formError}</p>
+          {/confirmation emails|email rate limit|account may already exist/i.test(formError) ? (
+            <p>
+              Already registered or confirmed? <Link href="/login">Go to login</Link>. Do not create another account.
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <FormField id="fullName" label="Full name" error={errors.fullName}>
