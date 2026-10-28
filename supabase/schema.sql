@@ -7,11 +7,11 @@ create extension if not exists pgcrypto;
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
+  email text,
   country text not null default '',
-  participant_role text not null default 'Founder'
-    check (participant_role in ('Founder', 'Aspiring founder', 'Student', 'Educator', 'Investor')),
+  role text not null default 'Founder'
+    check (role in ('Founder', 'Aspiring founder', 'Student', 'Educator', 'Investor')),
   accepted_terms boolean not null default false,
-  accepted_terms_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -23,21 +23,21 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, full_name, country, participant_role, accepted_terms, accepted_terms_at)
+  insert into public.profiles (id, full_name, email, country, role, accepted_terms)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', ''),
+    new.email,
     coalesce(new.raw_user_meta_data ->> 'country', ''),
     coalesce(new.raw_user_meta_data ->> 'participant_role', 'Founder'),
-    coalesce((new.raw_user_meta_data ->> 'accepted_terms')::boolean, false),
-    nullif(new.raw_user_meta_data ->> 'accepted_terms_at', '')::timestamptz
+    coalesce((new.raw_user_meta_data ->> 'accepted_terms')::boolean, false)
   )
   on conflict (id) do update set
     full_name = excluded.full_name,
+    email = excluded.email,
     country = excluded.country,
-    participant_role = excluded.participant_role,
+    role = excluded.role,
     accepted_terms = excluded.accepted_terms,
-    accepted_terms_at = excluded.accepted_terms_at,
     updated_at = now();
   return new;
 end;
