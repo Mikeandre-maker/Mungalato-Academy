@@ -19,8 +19,9 @@ Do **not** put a Supabase `service_role` key in frontend code or expose it with 
 1. Open your Supabase project.
 2. Go to **SQL Editor → New query**.
 3. Copy and run `supabase/schema.sql`.
-4. Under **Authentication → URL Configuration**, set the Site URL to your deployed site, e.g. `https://venture-arena-113m.vercel.app`, and add that URL to the allowed redirect URLs if email confirmation is enabled.
-5. Under **Authentication → Providers → Email**, choose the email-confirmation behavior you want for new registrations.
+4. For the 50-person verified pilot, run `supabase/migrations/20261028000100_verified_pilot_cap.sql` in SQL Editor after the main schema. It counts only confirmed accounts toward the cap and prevents concurrent confirmations from exceeding 50.
+5. Under **Authentication → URL Configuration**, set the Site URL to your deployed site and add that URL to the allowed redirect URLs if email confirmation is enabled.
+6. Keep email confirmation enabled for the public pilot. Configure custom SMTP under **Authentication → Emails → SMTP Settings** before inviting participants.
 
 The schema creates:
 - `profiles`, automatically populated from Supabase Auth when a user signs up;
