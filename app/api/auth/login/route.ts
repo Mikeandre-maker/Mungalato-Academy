@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
       if (/confirm|not confirmed|unverified/i.test(`${description} ${errorCode}`)) {
         return NextResponse.json({ message: "Please confirm your email address before signing in." }, { status: 401 });
       }
-      if (/rate.?limit|too many requests/i.test(`${description} ${errorCode}`)) {\n        return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });\n      }\n      if (response.status >= 500) {
+      if (/rate.?limit|too many requests/i.test(`${description} ${errorCode}`)) {
+        return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
+      }
+      if (response.status >= 500) {
         return NextResponse.json({ message: "The sign-in service is temporarily unavailable. Please try again shortly." }, { status: 502 });
       }
       return NextResponse.json({ message: "Email or password is incorrect. Check both and try again." }, { status: 401 });
