@@ -89,7 +89,13 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
-      console.error("Supabase signup failed", { status: response.status, message: rawMessage });
+      console.error("Supabase signup failed", { status: response.status, code: typeof payload.code === "string" ? payload.code : undefined, message: rawMessage });
+      if (response.status === 429 || /email rate limit exceeded|rate limit/i.test(rawMessage)) {
+        return NextResponse.json(
+          { message: "Supabase has temporarily limited confirmation emails. Your account may already exist; try logging in if you have confirmed it, or wait for the email limit to reset." },
+          { status: 429 }
+        );
+      }
       return NextResponse.json(
         { message: "We couldn't create your account. Check your details and try again." },
         { status: response.status >= 500 ? 502 : response.status }
