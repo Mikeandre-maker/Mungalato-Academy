@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
       }
       if (/confirm|not confirmed|unverified/i.test(`${description} ${errorCode}`)) {
-        return NextResponse.json({ message: "Please confirm your email address before signing in." }, { status: 401 });
+        return NextResponse.json({ message: "Supabase reports this email as unconfirmed for the project connected to Venture Arena. Check Authentication → Users in that exact Supabase project, and verify Vercel’s SUPABASE_URL points to it." }, { status: 401 });
       }
       if (/rate.?limit|too many requests/i.test(`${description} ${errorCode}`)) {
         return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
