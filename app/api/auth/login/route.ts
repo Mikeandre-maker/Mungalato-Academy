@@ -34,9 +34,27 @@ export async function POST(req: NextRequest) {
     const result: unknown = await response.json().catch(() => null);
     if (!response.ok || !result || typeof result !== "object") {
       const details = result && typeof result === "object" ? result as Record<string, unknown> : {};
-      const description = typeof details.msg === "string" ? details.msg : typeof details.message === "string" ? details.message : "";
-      const message = /confirm/i.test(description) ? "Please confirm your email address before signing in." : "Email or password is incorrect. If you just registered, confirm your email first.";
-      return NextResponse.json({ message }, { status: response.status === 429 ? 429 : 401 });
+      const description = typeof details.msg === "string"
+        ? details.msg
+        : typeof details.message === "string"
+          ? details.message
+          : typeof details.error_description === "string"
+            ? details.error_description
+            : typeof details.error === "string"
+              ? details.error
+              : "";
+      // Log only Supabase's status and error text; never log credentials or session tokens.
+      console.error("Supabase sign-in failed", { status: response.status, code: typeof details.code === "string" ? details.code : undefined, message: description });
+      if (response.status === 429) {
+        return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
+      }
+      if (/confirm|not confirmed|unverified/i.test(description)) {
+        return NextResponse.json({ message: "Please confirm your email address before signing in." }, { status: 401 });
+      }
+      if (response.status >= 500) {
+        return NextResponse.json({ message: "The sign-in service is temporarily unavailable. Please try again shortly." }, { status: 502 });
+      }
+      return NextResponse.json({ message: "Email or password is incorrect. Check both and try again." }, { status: 401 });
     }
     const session = result as Record<string, unknown>;
     if (typeof session.access_token !== "string" || typeof session.refresh_token !== "string") {
