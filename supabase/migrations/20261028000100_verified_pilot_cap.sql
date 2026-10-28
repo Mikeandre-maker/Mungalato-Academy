@@ -1,6 +1,6 @@
 -- Venture Arena: cap verified participants at 50.
 -- A participant counts only when their email is confirmed and their profile
--- participant_role is one of the listed values.
+-- role is one of the listed values.
 --
 -- Both email confirmations and changes to qualifying profile roles use the
 -- same advisory transaction lock.
@@ -16,7 +16,7 @@ as $$
   from auth.users as u
   join public.profiles as p on p.id = u.id
   where u.email_confirmed_at is not null
-    and p.participant_role in (
+    and p.role in (
       'Founder',
       'Aspiring founder',
       'Student',
@@ -53,7 +53,7 @@ begin
     join public.profiles as p on p.id = u.id
    where u.email_confirmed_at is not null
      and u.id <> new.id
-     and p.participant_role in (
+     and p.role in (
        'Founder',
        'Aspiring founder',
        'Student',
@@ -93,7 +93,7 @@ declare
 begin
   if tg_op = 'UPDATE' then
     if new.id is not distinct from old.id
-       and new.participant_role is not distinct from old.participant_role then
+       and new.role is not distinct from old.role then
       return new;
     end if;
 
@@ -102,8 +102,8 @@ begin
     end if;
   end if;
 
-  if new.participant_role is null
-     or new.participant_role not in (
+  if new.role is null
+     or new.role not in (
        'Founder',
        'Aspiring founder',
        'Student',
@@ -131,7 +131,7 @@ begin
    where u.email_confirmed_at is not null
      and u.id <> new.id
      and (excluded_old_id is null or u.id <> excluded_old_id)
-     and p.participant_role in (
+     and p.role in (
        'Founder',
        'Aspiring founder',
        'Student',
