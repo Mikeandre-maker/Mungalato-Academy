@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   try {
     const response = await fetch(`${url.replace(/\/+$/, "")}/auth/v1/token?grant_type=password`, {
       method: "POST",
-      headers: { apikey: key, "Content-Type": "application/json" },
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ email, password }),
       cache: "no-store",
     });
@@ -43,15 +43,20 @@ export async function POST(req: NextRequest) {
             : typeof details.error === "string"
               ? details.error
               : "";
+      const errorCode = typeof details.error_code === "string"
+        ? details.error_code
+        : typeof details.code === "string"
+          ? details.code
+          : "";
       // Log only Supabase's status and error text; never log credentials or session tokens.
-      console.error("Supabase sign-in failed", { status: response.status, code: typeof details.code === "string" ? details.code : undefined, message: description });
+      console.error("Supabase sign-in failed", { status: response.status, code: errorCode || undefined, message: description });
       if (response.status === 429) {
         return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
       }
-      if (/confirm|not confirmed|unverified/i.test(description)) {
+      if (/confirm|not confirmed|unverified/i.test(`${description} ${errorCode}`)) {
         return NextResponse.json({ message: "Please confirm your email address before signing in." }, { status: 401 });
       }
-      if (response.status >= 500) {
+      if (/rate.?limit|too many requests/i.test(`${description} ${errorCode}`)) {\n        return NextResponse.json({ message: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });\n      }\n      if (response.status >= 500) {
         return NextResponse.json({ message: "The sign-in service is temporarily unavailable. Please try again shortly." }, { status: 502 });
       }
       return NextResponse.json({ message: "Email or password is incorrect. Check both and try again." }, { status: 401 });
