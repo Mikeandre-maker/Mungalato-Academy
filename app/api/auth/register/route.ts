@@ -52,6 +52,35 @@ export async function POST(req: NextRequest) {
 
   try {
     const baseUrl = supabaseUrl.replace(/\/+$/, "");
+
+    // The database RPC counts confirmed participants only. Pending accounts
+    // intentionally do not reserve a place. Fail closed if the pilot-cap
+    // migration has not been applied, rather than accidentally opening signup.
+    const capacityResponse = await fetch(`${baseUrl}/rest/v1/rpc/venture_arena_pilot_has_space`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+      cache: "no-store",
+    });
+    if (!capacityResponse.ok) {
+      console.error("Venture Arena pilot capacity check failed", { status: capacityResponse.status });
+      return NextResponse.json(
+        { message: "Pilot registration is temporarily unavailable while capacity is configured. Please try again shortly." },
+        { status: 503 }
+      );
+    }
+    const hasSpace: unknown = await capacityResponse.json().catch(() => null);
+    if (hasSpace !== true) {
+      return NextResponse.json(
+        { message: "The Venture Arena 50-person pilot is full. Registration is currently closed." },
+        { status: 409 }
+      );
+    }
+
     const response = await fetch(`${baseUrl}/auth/v1/signup`, {
       method: "POST",
       headers: {
