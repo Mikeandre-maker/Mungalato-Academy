@@ -1,6 +1,6 @@
 -- Venture Arena: cap verified participants at 50.
 -- A participant counts only when their email is confirmed and their profile
--- role is one of the listed values.
+-- participant_role is one of the listed values.
 --
 -- Both email confirmations and changes to qualifying profile roles use the
 -- same advisory transaction lock.
@@ -16,7 +16,7 @@ as $$
   from auth.users as u
   join public.profiles as p on p.id = u.id
   where u.email_confirmed_at is not null
-    and p.role in (
+    and p.participant_role in (
       'Founder',
       'Aspiring founder',
       'Student',
@@ -40,7 +40,6 @@ as $$
 declare
   verified_count bigint;
 begin
-  -- Only check the transition from unconfirmed to confirmed.
   if old.email_confirmed_at is not null
      or new.email_confirmed_at is null then
     return new;
@@ -54,7 +53,7 @@ begin
     join public.profiles as p on p.id = u.id
    where u.email_confirmed_at is not null
      and u.id <> new.id
-     and p.role in (
+     and p.participant_role in (
        'Founder',
        'Aspiring founder',
        'Student',
@@ -81,8 +80,7 @@ create trigger enforce_venture_arena_pilot_limit
   execute function public.enforce_venture_arena_pilot_limit();
 
 
--- Also enforce the cap when a verified user's profile becomes a qualifying
--- role. This covers role assignments or changes made after email confirmation.
+-- Also enforce the cap when a verified user's profile becomes a qualifying role.
 create or replace function public.enforce_venture_arena_pilot_limit_on_profile()
 returns trigger
 language plpgsql
@@ -94,22 +92,18 @@ declare
   excluded_old_id uuid;
 begin
   if tg_op = 'UPDATE' then
-    -- A profile update that cannot change pilot membership needs no check.
     if new.id is not distinct from old.id
-       and new.role is not distinct from old.role then
+       and new.participant_role is not distinct from old.participant_role then
       return new;
     end if;
 
-    -- If the profile is moved to another user, don't count the old profile
-    -- while evaluating the post-update membership.
     if new.id is distinct from old.id then
       excluded_old_id := old.id;
     end if;
   end if;
 
-  -- Null or non-pilot roles do not consume a place.
-  if new.role is null
-     or new.role not in (
+  if new.participant_role is null
+     or new.participant_role not in (
        'Founder',
        'Aspiring founder',
        'Student',
@@ -121,7 +115,6 @@ begin
 
   perform pg_catalog.pg_advisory_xact_lock(81026, 50);
 
-  -- Unverified users do not consume a place.
   if not exists (
     select 1
       from auth.users as u
@@ -138,7 +131,7 @@ begin
    where u.email_confirmed_at is not null
      and u.id <> new.id
      and (excluded_old_id is null or u.id <> excluded_old_id)
-     and p.role in (
+     and p.participant_role in (
        'Founder',
        'Aspiring founder',
        'Student',
